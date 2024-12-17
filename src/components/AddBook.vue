@@ -20,7 +20,7 @@
             </div>
             <div>
                 <label for="status">Status:</label>
-                <select v-model="book.status" id="status" required>
+                <select v-model="book.status" id="status" required ref="status">
                     <option value="" disabled selected>Select status</option>
                     <option value="new">New</option>
                     <option value="used">Used</option>
@@ -29,7 +29,7 @@
             </div>
             <div>
                 <label for="file">Upload Photo:</label>
-                <input type="file" @change="handleFileUpload" id="file" />
+                <input type="file" @change="handleFileUpload" id="file" ref="file"/>
                 <div v-if="imgPreview" class="preview">
                     <img :src="imgPreview" alt="Image Preview" style="max-width: 100%; height: auto;" />
                 </div>
@@ -126,6 +126,8 @@ export default {
                 soldDate: ''
             };
             this.imgPreview = '';
+            this.$refs.file.value = '';
+            this.$refs.status.value = '';
         },
         async setLastId() {
             try {
