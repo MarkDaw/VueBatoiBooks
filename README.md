@@ -1,29 +1,12 @@
-# BatoiBooks
+# Configuración del Proyecto
 
-This template should help get you started developing with Vue 3 in Vite.
+## Instalar Dependencias
 
-## Recommended IDE Setup
+Ejecuta el siguiente comando para instalar las dependencias necesarias:
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
-
-```sh
+```bash
 npm install
 ```
 
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
-```
-
-### Compile and Minify for Production
-
-```sh
-npm run build
-```
+```bash
+json-server db/batoibooks.json
