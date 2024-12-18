@@ -9,7 +9,7 @@ import AppAbout from './components/AppAbout.vue';
 import axios from 'axios';
 import { store } from './store/index.js';
 
-const SERVER = 'http://localhost:3000/';
+const SERVER = import.meta.env.VITE_SERVER_URL || 'http://localhost:3000/';
 
 export default {
   name: 'App',
