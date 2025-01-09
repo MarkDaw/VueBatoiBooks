@@ -1,5 +1,6 @@
 <template>
-    <div class="add-book">
+    <div class="add-book" v-if="!this.id">
+
         <h2>Add New Book</h2>
         <form @submit.prevent="addBook">
             <div>
@@ -29,7 +30,7 @@
             </div>
             <div>
                 <label for="file">Upload Photo:</label>
-                <input type="file" @change="handleFileUpload" id="file" ref="file"/>
+                <input type="file" @change="handleFileUpload" id="file" ref="file" />
                 <div v-if="imgPreview" class="preview">
                     <img :src="imgPreview" alt="Image Preview" style="max-width: 100%; height: auto;" />
                 </div>
@@ -43,6 +44,55 @@
                 <input type="date" v-model="book.soldDate" id="soldDate" />
             </div>
             <button type="submit">Add Book</button>
+            <button type="reset" @click="resetForm">Reset</button>
+        </form>
+    </div>
+    <div class="edit-book" v-else>
+
+        <h2>Edit Book</h2>
+        <form @submit.prevent="updateBook">
+            <div>
+                <label for="moduleCode">Module Code:</label>
+                <input type="text" v-model="book.moduleCode" id="moduleCode" required />
+            </div>
+            <div>
+                <label for="publisher">Publisher:</label>
+                <input type="text" v-model="book.publisher" id="publisher" required />
+            </div>
+            <div>
+                <label for="price">Price:</label>
+                <input type="number" step="0.01" min="0" v-model="book.price" id="price" required />
+            </div>
+            <div>
+                <label for="pages">Pages:</label>
+                <input type="number" step="1" v-model="book.pages" id="pages" required />
+            </div>
+            <div>
+                <label for="status">Status:</label>
+                <select v-model="book.status" id="status" required ref="status">
+                    <option value="" disabled>Select status</option>
+                    <option value="new">New</option>
+                    <option value="used">Used</option>
+                    <option value="bad">Bad</option>
+                </select>
+            </div>
+            <div>
+                <label for="file">Upload Photo:</label>
+                <input type="file" @change="handleFileUpload" id="file" ref="file" />
+                <div v-if="imgPreview" class="preview">
+                    <img :src="imgPreview" alt="Image Preview" style="max-width: 100%; height: auto;" />
+                </div>
+            </div>
+            <div>
+                <label for="comments">Comments:</label>
+                <textarea v-model="book.comments" id="comments" rows="4"></textarea>
+            </div>
+            <div>
+                <label for="soldDate">Sold Date:</label>
+                <input type="date" v-model="book.soldDate" id="soldDate" />
+            </div>
+            <button type="submit">Update Book</button>
+            <button type="reset" @click="fetchBook">Reset</button>
         </form>
     </div>
 </template>
@@ -70,7 +120,43 @@ export default {
             imgPreview: '',
         };
     },
+    created() {
+        if (this.id) {
+            this.fetchBook();
+        }
+    },
+    props: {
+        id: {
+            type: String,
+            default: ''
+        }
+    },
     methods: {
+        async fetchBook() {
+            try {
+                const response = await axios.get(SERVER + `books/${this.id}`);
+                this.book = response.data;
+                if (this.book.photo) {
+                    this.imgPreview = this.book.photo;
+                } else {
+                    this.imgPreview = '/default.svg';
+                }
+
+            } catch (error) {
+                if (error.response.status === 404) {
+                    store.pushMessageAction({
+                        type: 'error',
+                        message: `No se ha encontrado el libro con id: ${this.id}`,
+                    });
+                    this.$router.push('/');
+                } else {
+                    store.pushMessageAction({
+                        type: 'error',
+                        message: `Failed to fetch the book: ${this.id}. ${error}`,
+                    });
+                }
+            }
+        },
         validate() {
             console.log(this.book);
             if (!this.book.moduleCode || !this.book.publisher || !this.book.price || !this.book.pages || !this.book.status) {
@@ -103,15 +189,50 @@ export default {
         },
         async addBook() {
             this.setLastId()
-                .then(() => {
+                .then(async () => {
                     console.log(this.book);
                     if (!this.validate()) return;
                     console.log(this.book);
-                    this.$emit('add-book', this.book);
-                    this.resetForm();
+
+                    try {
+                        await axios.post(SERVER + 'books', this.book);
+                        store.pushMessageAction({
+                            type: 'success',
+                            message: `Book added successfully: ${this.book.id}`,
+                        });
+
+                    } catch (error) {
+                        store.pushMessageAction({
+                            type: 'error',
+                            message: `Failed to add the book: ${this.book.id}. ${error}`,
+                        });
+                    }
+
+                    this.$router.push(`/home/${this.book.id}`);
                 }).catch(error => {
-                    console.error(error);
+                    store.pushMessageAction({
+                        type: 'error',
+                        message: 'Failed to get the last ID.'
+                    });
                 });
+        },
+        async updateBook() {
+            if (!this.validate()) return;
+
+            try {
+                await axios.put(SERVER + `books/${this.id}`, this.book);
+                store.pushMessageAction({
+                    type: 'success',
+                    message: `Book updated successfully: ${this.book.id}`,
+                });
+                this.resetForm();
+                this.$router.push(`/home/${this.id}`);
+            } catch (error) {
+                store.pushMessageAction({
+                    type: 'error',
+                    message: `Failed to update the book: ${this.book.id}. ${error}`,
+                });
+            }
         },
         resetForm() {
             this.book = {
@@ -153,14 +274,27 @@ export default {
                 this.book.photo = e.target.result;
             };
             reader.readAsDataURL(file);
-        }
+        },
 
+
+
+
+
+    },
+    watch: {
+        id() {
+            this.fetchBook();
+        },
+        $route(to, from) {
+            this.resetForm();
+        }
     }
 };
 </script>
 
 <style scoped>
-.add-book {
+.add-book,
+.edit-book {
     margin: 0 auto;
     padding: 20px;
     border: 1px solid #ccc;
@@ -208,6 +342,7 @@ button {
     background-color: var(--button-bg-color);
     color: var(--button-text-color);
     cursor: pointer;
+    margin-right: 10px;
 }
 
 .preview {

@@ -1,9 +1,10 @@
 <template>
     <nav>
         <ul>
-            <li><a href="/add">Add Book</a></li>
-            <li><a href="/edit">Edit Book</a></li>
-            <li><a href="/list">Book List</a></li>
+            <li><router-link to="/">Home</router-link></li>
+            <li><router-link to="/add-book">Add Book</router-link></li>
+            <li><router-link to="/cart">Cart</router-link></li>
+            <li><router-link to="/about">About</router-link></li>
         </ul>
     </nav>
 </template>

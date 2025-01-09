@@ -1,21 +1,20 @@
 <script>
-import AppMessages from './components/AppMessages.vue';
-import BooksList from './components/BooksList.vue';
-import AddBook from './components/AddBook.vue';
-import AppMenu from './components/AppMenu.vue';
-import AppCart from './components/AppCart.vue';
-import AppAbout from './components/AppAbout.vue';
-
+import BooksList from '../components/BooksList.vue';
+import AddBook from '../components/AddBook.vue';
+import AppCart from '../components/AppCart.vue';
+import AppAbout from '../components/AppAbout.vue';
 import axios from 'axios';
-import { store } from './store/index.js';
+import { store } from '../store/index.js';
 
 const SERVER = import.meta.env.VITE_SERVER_URL || 'http://localhost:3000/';
 
 export default {
-  name: 'App',
+  name: 'Home',
   components: {
-    AppMessages,
-    AppMenu,
+    BooksList,
+    AddBook,
+    AppCart,
+    AppAbout,
   },
   data() {
     return {
@@ -26,11 +25,9 @@ export default {
     this.fetchBooks();
   },
   computed: {
-    total: {
-      get() {
-        return this.books.length;
-      }
-    }
+    total() {
+      return this.books.length;
+    },
   },
   methods: {
     async fetchBooks() {
@@ -57,7 +54,6 @@ export default {
         store.pushMessageAction({
           type: 'error',
           message: `Failed to delete the book: ${book.id}`,
-
         });
       }
     },
@@ -70,7 +66,7 @@ export default {
           message: `Book added successfully: ${book.id}`,
         });
 
-        this.books.push(book)
+        this.books.push(book);
       } catch (error) {
         store.pushMessageAction({
           type: 'error',
@@ -89,10 +85,7 @@ export default {
 </script>
 
 <template>
-  <AppMenu />
-
-  <!-- <main>
-    <AppMessages />
+  <main>
     <BooksList :books="books" @delete-book="deleteBook" @edit-book="showEditForm" />
     <div class="book-count">
       <p>Total Books: {{ total }}</p>
@@ -100,13 +93,21 @@ export default {
     <AddBook @add-book="addBook" />
     <AppCart />
     <AppAbout />
-  </main> -->
-  <AppMessages />
-  <router-view></router-view>
-
-  <footer>
-    <p>Developed with ❤️. Marc Mollá Lillo</p>
-  </footer>
+  </main>
 </template>
 
+<style scoped>
+main {
+  padding-bottom: 50px;
+  padding-top: 50px;
+}
 
+.book-count {
+  text-align: center;
+  margin: 20px 0;
+}
+
+p {
+  margin: 0;
+}
+</style>
