@@ -4,8 +4,17 @@
         <h2>Add New Book</h2>
         <form @submit.prevent="addBook">
             <div>
-                <label for="moduleCode">Module Code:</label>
-                <input type="text" v-model="book.moduleCode" id="moduleCode" required />
+                <label for="moduleCode">Module (Code):</label>
+                <input readonly type="text" v-model="book.moduleCode" id="moduleCode" required />
+            </div>
+            <div>
+                <label for="moduleCode">Module:</label>
+                <select v-model="book.moduleCode" id="moduleCode">
+                    <option value="" disabled selected>Select module code</option>
+                    <option v-for="module in this.modulesCodeCliteral" :key="module.code" :value="module.code">
+                        {{ module.cliteral }}
+                    </option>
+                </select>
             </div>
             <div>
                 <label for="publisher">Publisher:</label>
@@ -52,8 +61,17 @@
         <h2>Edit Book</h2>
         <form @submit.prevent="updateBook">
             <div>
-                <label for="moduleCode">Module Code:</label>
-                <input type="text" v-model="book.moduleCode" id="moduleCode" required />
+                <label for="moduleCode">Module (Code):</label>
+                <input readonly type="text" v-model="book.moduleCode" id="moduleCode" required />
+            </div>
+            <div>
+                <label for="moduleCode">Module:</label>
+                <select v-model="book.moduleCode" id="moduleCode">
+                    <option value="" disabled selected>Select module code</option>
+                    <option v-for="module in this.modulesCodeCliteral" :key="module.code" :value="module.code">
+                        {{ module.cliteral }}
+                    </option>
+                </select>
             </div>
             <div>
                 <label for="publisher">Publisher:</label>
@@ -99,7 +117,9 @@
 
 <script>
 import axios from 'axios';
-import { store } from '../store/index.js';
+import { useMessagesStore } from '../store/messages.js';
+import { useBooksStore } from '../store/books.js';
+import { mapActions } from 'pinia';
 const SERVER = 'http://localhost:3000/';
 
 export default {
@@ -120,10 +140,22 @@ export default {
             imgPreview: '',
         };
     },
-    created() {
+
+    computed: {
+        modulesCodeCliteral() {
+            const store = useBooksStore();
+            return store.modulesCodeCliteral;
+        },
+        id() {
+            return this.$route.params.id;
+        }
+    },
+    async created() {
+        await this.loadAllData();
         if (this.id) {
             this.fetchBook();
         }
+
     },
     props: {
         id: {
@@ -132,6 +164,8 @@ export default {
         }
     },
     methods: {
+        ...mapActions(useMessagesStore, ['pushMessageAction']),
+        ...mapActions(useBooksStore, ['loadAllData']),
         async fetchBook() {
             try {
                 const response = await axios.get(SERVER + `books/${this.id}`);
@@ -144,13 +178,13 @@ export default {
 
             } catch (error) {
                 if (error.response.status === 404) {
-                    store.pushMessageAction({
+                    this.pushMessageAction({
                         type: 'error',
                         message: `No se ha encontrado el libro con id: ${this.id}`,
                     });
                     this.$router.push('/');
                 } else {
-                    store.pushMessageAction({
+                    this.pushMessageAction({
                         type: 'error',
                         message: `Failed to fetch the book: ${this.id}. ${error}`,
                     });
@@ -160,15 +194,23 @@ export default {
         validate() {
             console.log(this.book);
             if (!this.book.moduleCode || !this.book.publisher || !this.book.price || !this.book.pages || !this.book.status) {
-                store.pushMessageAction({
+                this.pushMessageAction({
                     type: 'error',
                     message: 'Please fill in all required fields.'
                 });
                 return false;
             }
 
+            if (!this.modulesCodeCliteral.some(module => module.code === this.book.moduleCode)) {
+                this.pushMessageAction({
+                    type: 'error',
+                    message: 'El modulo no existe.'
+                });
+                return false;
+            }
+
             if (this.book.price <= 0 || this.book.pages <= 0) {
-                store.pushMessageAction({
+                this.pushMessageAction({
                     type: 'error',
                     message: 'Price and pages must be greater than 0.'
                 });
@@ -176,7 +218,7 @@ export default {
             }
 
             if (this.book.status !== 'new' && this.book.status !== 'used' && this.book.status !== 'bad') {
-                store.pushMessageAction({
+                this.pushMessageAction({
                     type: 'error',
                     message: 'Invalid status.'
                 });
@@ -196,13 +238,13 @@ export default {
 
                     try {
                         await axios.post(SERVER + 'books', this.book);
-                        store.pushMessageAction({
+                        this.pushMessageAction({
                             type: 'success',
                             message: `Book added successfully: ${this.book.id}`,
                         });
 
                     } catch (error) {
-                        store.pushMessageAction({
+                        this.pushMessageAction({
                             type: 'error',
                             message: `Failed to add the book: ${this.book.id}. ${error}`,
                         });
@@ -210,7 +252,7 @@ export default {
 
                     this.$router.push(`/home/${this.book.id}`);
                 }).catch(error => {
-                    store.pushMessageAction({
+                    this.pushMessageAction({
                         type: 'error',
                         message: 'Failed to get the last ID.'
                     });
@@ -221,14 +263,14 @@ export default {
 
             try {
                 await axios.put(SERVER + `books/${this.id}`, this.book);
-                store.pushMessageAction({
+                this.pushMessageAction({
                     type: 'success',
                     message: `Book updated successfully: ${this.book.id}`,
                 });
                 this.resetForm();
                 this.$router.push(`/home/${this.id}`);
             } catch (error) {
-                store.pushMessageAction({
+                this.pushMessageAction({
                     type: 'error',
                     message: `Failed to update the book: ${this.book.id}. ${error}`,
                 });
@@ -256,7 +298,7 @@ export default {
                 const ids = response.data.map(book => Number(book.id));
                 this.book.id = (Math.max(...ids) + 1).toString();
             } catch (error) {
-                store.pushMessageAction({
+                this.pushMessageAction({
                     type: 'error',
                     message: 'Failed to get the last ID.'
                 });
@@ -309,6 +351,11 @@ export default {
 
 form {
     max-width: 500px;
+}
+input[readonly] {
+    background-color: #f5f5f5;
+    color: #4d4d4d;
+    cursor: not-allowed;
 }
 
 form div {

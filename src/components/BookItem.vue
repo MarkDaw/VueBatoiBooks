@@ -1,19 +1,24 @@
 <script>
+import BookItem from './BookItem.vue';
+
 export default {
     name: 'BookItem',
     props: ['book'],
+
     computed: {
         lastUpdateId() {
             return this.$route.params.id;
         }
+    },
+    mounted() {
+        console.log(this.book);
     }
 }
 </script>
-
 <template>
     <div v-if="lastUpdateId != book.id" class="book card">
         <img :src="book.photo ? book.photo : '/default.svg'" alt="Book photo">
-        <h2>{{ book.moduleCode }}</h2>
+        <h2>{{ book.moduleDescription }}</h2>
         <p>Publisher: {{ book.publisher }}</p>
         <p>Price: ${{ book.price }}</p>
         <p>Pages: {{ book.pages }}</p>
@@ -24,10 +29,13 @@ export default {
             <button @click="$router.push(`/edit-book/${book.id}`)">Edit</button>
             <button @click="$emit('delete', book)">Delete</button>
         </div>
+        <div>
+            <slot><div></div></slot>
+        </div>
     </div>
     <div v-else class="book card lastUpdated">
         <img :src="book.photo ? book.photo : '/default.svg'" alt="Book photo">
-        <h2>{{ book.moduleCode }}</h2>
+        <h2>{{ book.moduleDescription }}</h2>
         <p>Publisher: {{ book.publisher }}</p>
         <p>Price: ${{ book.price }}</p>
         <p>Pages: {{ book.pages }}</p>

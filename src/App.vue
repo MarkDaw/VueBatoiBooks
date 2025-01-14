@@ -1,4 +1,4 @@
-<script>
+<!-- <script>
 import AppMessages from './components/AppMessages.vue';
 import BooksList from './components/BooksList.vue';
 import AddBook from './components/AddBook.vue';
@@ -6,8 +6,10 @@ import AppMenu from './components/AppMenu.vue';
 import AppCart from './components/AppCart.vue';
 import AppAbout from './components/AppAbout.vue';
 
+import { mapActions } from 'pinia';
 import axios from 'axios';
-import { store } from './store/index.js';
+import { useMessagesStore } from './store/messages';
+import { useBooksStore } from '@/store/books';
 
 const SERVER = import.meta.env.VITE_SERVER_URL || 'http://localhost:3000/';
 
@@ -33,10 +35,12 @@ export default {
     }
   },
   methods: {
+    ...mapActions(useMessagesStore, ['pushMessageAction']),
     async fetchBooks() {
       try {
         const response = await axios.get(SERVER + 'books');
-        this.books = response.data;
+        // this.books = response.data;
+        return response.data;
       } catch (error) {
         console.error(error);
       }
@@ -49,12 +53,12 @@ export default {
       try {
         await axios.delete(SERVER + 'books/' + book.id);
         this.books = this.books.filter((b) => b.id !== book.id);
-        store.pushMessageAction({
+        this.pushMessageAction({
           type: 'success',
           message: `Book deleted successfully: ${book.id}`,
         });
       } catch (error) {
-        store.pushMessageAction({
+        this.pushMessageAction({
           type: 'error',
           message: `Failed to delete the book: ${book.id}`,
 
@@ -65,26 +69,64 @@ export default {
       console.log('addBook', book);
       try {
         await axios.post(SERVER + 'books', book);
-        store.pushMessageAction({
+        this.pushMessageAction({
           type: 'success',
           message: `Book added successfully: ${book.id}`,
         });
 
         this.books.push(book)
       } catch (error) {
-        store.pushMessageAction({
+        this.pushMessageAction({
           type: 'error',
           message: `Failed to add the book: ${book.id}`,
         });
       }
     },
     showEditForm(book) {
-      store.pushMessageAction({
+      this.pushMessageAction({
         type: 'info',
         message: `Editing book: ${book.id}... Not supported yet.`,
       });
     },
   },
+};
+</script> -->
+<script>
+import AppMessages from './components/AppMessages.vue';
+import AppMenu from './components/AppMenu.vue';
+
+import { useMessagesStore } from './store/messages';
+import { useBooksStore } from '@/store/books';
+import { mapActions } from 'pinia';
+import { mapState } from 'pinia';
+
+export default {
+  name: 'App',
+  components: {
+    AppMessages,
+    AppMenu,
+  },
+  // computed: {
+  //   // Obtenemos los libros directamente del store
+  //   ...mapState['booksStore', ['books']],
+  //   totalBooks() {
+  //     return this.booksStore.books.length; // Contamos los libros desde el estado del store
+  //   },
+  // },
+  // created() {
+  //   this.loadAllData();
+  // },
+  // methods: {
+  //   // Mapeamos las acciones del store
+  //   ...mapActions(useMessagesStore, ['pushMessageAction']),
+  //   ...mapActions(useBooksStore, ['deleteBook', 'addBook', 'loadAllData', 'booksWithDescriptions']),
+  //   showEditForm(book) {
+  //     this.pushMessageAction({
+  //       type: 'info',
+  //       message: `Editar libro: ${book.id}... Aún no está soportado.`,
+  //     });
+  //   },
+  // },
 };
 </script>
 

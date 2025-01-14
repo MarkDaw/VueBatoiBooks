@@ -1,16 +1,16 @@
 <script>
-import { store } from '../store/index.js';
+import { useMessagesStore } from '../store/messages.js';
+import { mapState, mapActions } from 'pinia';
 
 export default {
     name: 'AppMessages',
     computed: {
-        messages() {
-            return store.state.messages;
-        }
+        ...mapState(useMessagesStore, ['messages'])
     },
     methods: {
+        ...mapActions(useMessagesStore, ['deleteMessageAction', 'pushMessageAction', 'clearMessageAction']),
         removeMsg(index) {
-            store.deleteMessageAction(index);
+            this.deleteMessageAction(index);
         },
         autoRemoveMsg(index, type) {
             if (type === 'info' || type === 'success') {

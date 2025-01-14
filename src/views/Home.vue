@@ -1,8 +1,9 @@
 <script>
 import BooksList from '../components/BooksList.vue';
 
-import axios from 'axios';
-import { store } from '../store/index.js';
+import { useBooksStore } from '../store/books';
+import { useMessagesStore } from '../store/messages';
+import { mapActions, mapState } from 'pinia';
 
 const SERVER = import.meta.env.VITE_SERVER_URL || 'http://localhost:3000/';
 
@@ -11,54 +12,28 @@ export default {
   components: {
     BooksList,
   },
-  data() {
-    return {
-      books: [],
-    };
+  computed: {
+    // Obtenemos los libros directamente del store
+    ...mapState(useBooksStore, ['books']),
+    totalBooks() {
+      return this.books.length; // Contamos los libros desde el estado del store
+    },
   },
   created() {
-    this.fetchBooks();
-  },
-  computed: {
-    total() {
-      return this.books.length;
-    },
+    this.loadAllData();
   },
   methods: {
-    async fetchBooks() {
-      try {
-        const response = await axios.get(SERVER + 'books');
-        this.books = response.data;
-      } catch (error) {
-        console.error(error);
-      }
-    },
-    async deleteBook(book) {
-      const confirmed = confirm(`Are you sure you want to delete the book with ID: ${book.id} and Code: ${book.moduleCode}?`);
-      if (!confirmed) {
-        return;
-      }
-      try {
-        await axios.delete(SERVER + 'books/' + book.id);
-        this.books = this.books.filter((b) => b.id !== book.id);
-        store.pushMessageAction({
-          type: 'success',
-          message: `Book deleted successfully: ${book.id}`,
-        });
-      } catch (error) {
-        store.pushMessageAction({
-          type: 'error',
-          message: `Failed to delete the book: ${book.id}`,
-        });
-      }
-    },
+    // Mapeamos las acciones del store
+    ...mapActions(useMessagesStore, ['pushMessageAction']),
+    ...mapActions(useBooksStore, ['deleteBook', 'addBook', 'loadAllData', 'booksWithDescriptions']),
+    
   },
 };
 </script>
 
 <template>
   <main>
-    <BooksList :books="books" @delete-book="deleteBook" @edit-book="showEditForm" />
+    <BooksList :books="this.books" @delete-book="deleteBook" />
     <div class="book-count">
       <p>Total Books: {{ total }}</p>
     </div>
