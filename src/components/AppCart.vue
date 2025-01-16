@@ -36,14 +36,15 @@ export default {
   },
   methods: {
     // Mapeamos las acciones del store
-    ...mapActions(useBooksStore, ['addBookToCart', 'removeBookFromCart', 'loadCart']),
+    ...mapActions(useBooksStore, ['addBookToCart', 'removeBookFromCart', 'loadCart', 'emptyCart']),
     ...mapActions(useMessagesStore, ['pushMessageAction']),
     setSelectedBook(book) {
       this.selectedBook = book;
     },
     buy() {
       if (confirm(`Compra realizada con éxito. El precio total es ${this.cartTotal}`)) {
-        console.log('Compra confirmada');
+        this.pushMessageAction({ message: 'Compra realizada con éxito', type: 'success' });
+        this.emptyCart();
       } else {
         this.pushMessageAction({ message: 'Compra cancelada', type: 'warning' });
       }

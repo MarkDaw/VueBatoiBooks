@@ -143,8 +143,7 @@ export default {
 
     computed: {
         modulesCodeCliteral() {
-            const store = useBooksStore();
-            return store.modulesCodeCliteral;
+             return useBooksStore().modulesCodeCliteral;
         },
         id() {
             return this.$route.params.id;

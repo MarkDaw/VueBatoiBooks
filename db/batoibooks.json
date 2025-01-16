@@ -2185,18 +2185,6 @@
       "soldDate": ""
     },
     {
-      "id": "34",
-      "userId": "4",
-      "moduleCode": "0486",
-      "publisher": "1",
-      "price": 1,
-      "pages": 1,
-      "status": "new",
-      "photo": "",
-      "comments": "1",
-      "soldDate": ""
-    },
-    {
       "id": "35",
       "moduleCode": "7523",
       "publisher": "Satoshi Nakamura",
