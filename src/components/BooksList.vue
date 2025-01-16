@@ -42,7 +42,7 @@ export default {
           <cart-plus @click="$emit('add-to-cart', book)"></cart-plus>
         </button>
         <button class="edit" title="Editar">
-          <Pencil @click="this.$router.push(`edit-book/${book.id}`)"></Pencil>
+          <Pencil @click="this.$router.push(`/edit-book/${book.id}`)"></Pencil>
         </button>
         <button class="delete" title="Eliminar" @click="remove">
           <delete @click="$emit('delete-book', book)"></delete>

@@ -38,6 +38,10 @@ export default {
         <p>Status: {{ book.status }}</p>
         <p v-if="book.comments">Comments: {{ book.comments }}</p>
         <p v-if="book.soldDate">Sold Date: {{ book.soldDate }}</p>
+
+        <div>
+            <slot><div></div></slot>
+        </div>
         
     </div>
 </template>
