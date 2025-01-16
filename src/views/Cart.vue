@@ -1,11 +1,10 @@
 <script>
 import AppCart from '../components/AppCart.vue';
 
-
 const SERVER = import.meta.env.VITE_SERVER_URL || 'http://localhost:3000/';
 
 export default {
-  name: 'Home',
+  name: 'Cart',
   components: {
     AppCart,
   },

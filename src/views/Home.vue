@@ -25,7 +25,7 @@ export default {
   methods: {
     // Mapeamos las acciones del store
     ...mapActions(useMessagesStore, ['pushMessageAction']),
-    ...mapActions(useBooksStore, ['deleteBook', 'addBook', 'loadAllData', 'booksWithDescriptions']),
+    ...mapActions(useBooksStore, ['deleteBook', 'addBook', 'loadAllData', 'booksWithDescriptions', 'addBookToCart']),
     
   },
 };
@@ -33,7 +33,7 @@ export default {
 
 <template>
   <main>
-    <BooksList :books="this.books" @delete-book="deleteBook" />
+    <BooksList :books="this.books" @delete-book="deleteBook" @add-to-cart="addBookToCart" />
     <div class="book-count">
       <p>Total Books: {{ total }}</p>
     </div>

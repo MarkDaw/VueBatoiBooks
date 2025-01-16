@@ -1,5 +1,4 @@
 <script>
-import BookItem from './BookItem.vue';
 
 export default {
     name: 'BookItem',
@@ -25,10 +24,7 @@ export default {
         <p>Status: {{ book.status }}</p>
         <p v-if="book.comments">Comments: {{ book.comments }}</p>
         <p v-if="book.soldDate">Sold Date: {{ book.soldDate }}</p>
-        <div class="bookButtons">
-            <button @click="$router.push(`/edit-book/${book.id}`)">Edit</button>
-            <button @click="$emit('delete', book)">Delete</button>
-        </div>
+        
         <div>
             <slot><div></div></slot>
         </div>
@@ -42,10 +38,7 @@ export default {
         <p>Status: {{ book.status }}</p>
         <p v-if="book.comments">Comments: {{ book.comments }}</p>
         <p v-if="book.soldDate">Sold Date: {{ book.soldDate }}</p>
-        <div class="bookButtons">
-            <button @click="$router.push(`/edit-book/${book.id}`)">Edit</button>
-            <button @click="$emit('delete', book)">Delete</button>
-        </div>
+        
     </div>
 </template>
 
@@ -78,7 +71,7 @@ h2 {
     color: var(--text-color);
 }
 
-.bookButtons {
+.bookButtons, .buttons {
     display: flex;
     justify-content: space-around;
 }

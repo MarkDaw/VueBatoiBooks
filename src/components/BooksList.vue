@@ -27,7 +27,7 @@ export default {
     <BookItem v-for="(book, index) in books" :key="index" :book="book" @delete="$emit('delete-book', book)">
       <div>
         <button class="cart add-cart" title="Añadir al carrito">
-          <cart-plus></cart-plus>
+          <cart-plus @click="$emit('add-to-cart', book)"></cart-plus>
         </button>
         <button class="edit" title="Editar">
           <Pencil></Pencil>

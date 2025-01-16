@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 const SERVER = 'http://localhost:3000'
-const debug = true;
+const debug = false;
 
 export const useMessagesStore = defineStore('useMessagesStore', {
   state: () => ({
