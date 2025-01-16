@@ -11,6 +11,10 @@ export default {
       type: Array,
       required: true,
     },
+    cart: {
+      type: Array,
+      required: true,
+    },
   },
   components: {
     BookItem,
@@ -19,6 +23,9 @@ export default {
     Pencil,
   },
 
+
+
+
 };
 </script>
 
@@ -26,17 +33,23 @@ export default {
   <div id="booksContainer">
     <BookItem v-for="(book, index) in books" :key="index" :book="book" @delete="$emit('delete-book', book)">
       <div>
-        <button class="cart add-cart" title="Añadir al carrito">
+        <button v-if="(!cart.some(cartItem => cartItem.id === book.id))" class="cart add-cart"
+          title="Añadir al carrito">
+          <cart-plus @click="$emit('add-to-cart', book)"></cart-plus>
+        </button>
+        <button v-else disabled class="cart add-cart"
+          title="Añadir al carrito">
           <cart-plus @click="$emit('add-to-cart', book)"></cart-plus>
         </button>
         <button class="edit" title="Editar">
-          <Pencil></Pencil>
+          <Pencil @click="this.$router.push(`edit-book/${book.id}`)"></Pencil>
         </button>
         <button class="delete" title="Eliminar" @click="remove">
-          <delete></delete>
+          <delete @click="$emit('delete-book', book)"></delete>
+        
         </button>
       </div>
-  </BookItem>
+    </BookItem>
   </div>
 </template>
 

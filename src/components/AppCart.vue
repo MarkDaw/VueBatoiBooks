@@ -41,11 +41,17 @@ export default {
     setSelectedBook(book) {
       this.selectedBook = book;
     },
-    buy(){
-      this.pushMessageAction('Compra realizada con éxito');
+    buy() {
+      if (confirm(`Compra realizada con éxito. El precio total es ${this.cartTotal}`)) {
+        console.log('Compra confirmada');
+      } else {
+        this.pushMessageAction({ message: 'Compra cancelada', type: 'warning' });
+      }
     },
 
   },
+
+
   created() {
     this.loadCart();
   },
@@ -63,7 +69,7 @@ export default {
         <p>Total: {{ cartTotal }}</p>
       </li>
     </ul>
-    <BookItem  v-if="selectedBook" :book="selectedBook">
+    <BookItem v-if="selectedBook" :book="selectedBook">
       <div class="buttons">
         <button class="cart remove-cart" title="Eliminar del carrito">
           <cart-off @click="removeBookFromCart(selectedBook)"></cart-off>
@@ -73,7 +79,7 @@ export default {
         </button>
       </div>
     </BookItem>
-    <BookItem v-else-if="lastCartBook"  :book="lastCartBook">
+    <BookItem v-else-if="lastCartBook" :book="lastCartBook">
       <div class="buttons">
         <button class="cart remove-cart" title="Eliminar del carrito">
           <cart-off @click="removeBookFromCart(lastCartBook)"></cart-off>
@@ -110,7 +116,7 @@ export default {
   width: 55%;
 }
 
-.card{
+.card {
   width: 40%;
 }
 
@@ -119,7 +125,4 @@ export default {
   justify-content: space-around;
   gap: 10px;
 }
-
-
-
 </style>

@@ -83,4 +83,8 @@ export default {
 .success {
     border: 2px solid rgba(0, 128, 0, 0.8);
 }
+
+.warning {
+    border: 2px solid rgba(255, 255, 0, 0.8);
+}
 </style>

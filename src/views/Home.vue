@@ -14,18 +14,19 @@ export default {
   },
   computed: {
     // Obtenemos los libros directamente del store
-    ...mapState(useBooksStore, ['books']),
+    ...mapState(useBooksStore, ['books', 'cart']),
     totalBooks() {
       return this.books.length; // Contamos los libros desde el estado del store
     },
   },
   created() {
     this.loadAllData();
+    this.loadCart();
   },
   methods: {
     // Mapeamos las acciones del store
     ...mapActions(useMessagesStore, ['pushMessageAction']),
-    ...mapActions(useBooksStore, ['deleteBook', 'addBook', 'loadAllData', 'booksWithDescriptions', 'addBookToCart']),
+    ...mapActions(useBooksStore, ['deleteBook', 'addBook', 'loadAllData', 'booksWithDescriptions', 'addBookToCart', 'loadCart']),
     
   },
 };
@@ -33,7 +34,7 @@ export default {
 
 <template>
   <main>
-    <BooksList :books="this.books" @delete-book="deleteBook" @add-to-cart="addBookToCart" />
+    <BooksList :cart="this.cart" :books="this.books" @delete-book="deleteBook" @add-to-cart="addBookToCart" />
     <div class="book-count">
       <p>Total Books: {{ total }}</p>
     </div>
