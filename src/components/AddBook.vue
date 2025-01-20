@@ -2,40 +2,48 @@
     <div class="add-book" v-if="!this.id">
 
         <h2>Add New Book</h2>
-        <form @submit.prevent="addBook">
+
+        <Form :validation-schema="schema" @submit="addBook">
             <div>
                 <label for="moduleCode">Module (Code):</label>
-                <input readonly type="text" v-model="book.moduleCode" id="moduleCode" required />
+                <Field name="moduleCode" readonly type="text" v-model="book.moduleCode" id="moduleCode" required />
+                <ErrorMessage name="moduleCode" />
             </div>
             <div>
                 <label for="moduleCode">Module:</label>
-                <select v-model="book.moduleCode" id="moduleCode">
+                <Field as="select" name="moduleCode" v-model="book.moduleCode" id="moduleCode" class="form-control">
                     <option value="" disabled selected>Select module code</option>
-                    <option v-for="module in this.modulesCodeCliteral" :key="module.code" :value="module.code">
+                    <option v-for="module in modulesCodeCliteral" :key="module.code" :value="module.code">
                         {{ module.cliteral }}
                     </option>
-                </select>
+                </Field>
+                <ErrorMessage name="moduleCode" />
             </div>
             <div>
                 <label for="publisher">Publisher:</label>
-                <input type="text" v-model="book.publisher" id="publisher" required />
+                <Field name="publisher" type="text" v-model="book.publisher" id="publisher" required />
+                <ErrorMessage name="publisher" />
             </div>
             <div>
                 <label for="price">Price:</label>
-                <input type="number" step="0.01" min="0" v-model="book.price" id="price" required />
+                <Field name="price" type="number" step="0.01" min="0" v-model="book.price" id="price" required
+                    value="0" />
+                <ErrorMessage name="price" />
             </div>
             <div>
                 <label for="pages">Pages:</label>
-                <input type="number" step="1" v-model="book.pages" id="pages" required />
+                <Field name="pages" type="number" step="1" v-model="book.pages" id="pages" required value="0" />
+                <ErrorMessage name="pages" />
             </div>
             <div>
                 <label for="status">Status:</label>
-                <select v-model="book.status" id="status" required ref="status">
+                <Field as="select" name="status" v-model="book.status" id="status" required ref="status">
                     <option value="" disabled selected>Select status</option>
                     <option value="new">New</option>
                     <option value="used">Used</option>
                     <option value="bad">Bad</option>
-                </select>
+                </Field>
+                <ErrorMessage name="status" />
             </div>
             <div>
                 <label for="file">Upload Photo:</label>
@@ -54,45 +62,52 @@
             </div>
             <button type="submit">Add Book</button>
             <button type="reset" @click="resetForm">Reset</button>
-        </form>
+        </Form>
+
     </div>
     <div class="edit-book" v-else>
 
         <h2>Edit Book</h2>
-        <form @submit.prevent="updateBook">
+        <Form :validation-schema="schema" @submit="updateBook">
             <div>
                 <label for="moduleCode">Module (Code):</label>
-                <input readonly type="text" v-model="book.moduleCode" id="moduleCode" required />
+                <Field name="moduleCode" readonly type="text" v-model="book.moduleCode" id="moduleCode" required />
+                <ErrorMessage name="moduleCode" />
             </div>
             <div>
                 <label for="moduleCode">Module:</label>
-                <select v-model="book.moduleCode" id="moduleCode">
+                <Field as="select" name="moduleCode" v-model="book.moduleCode" id="moduleCode" class="form-control">
                     <option value="" disabled selected>Select module code</option>
-                    <option v-for="module in this.modulesCodeCliteral" :key="module.code" :value="module.code">
+                    <option v-for="module in modulesCodeCliteral" :key="module.code" :value="module.code">
                         {{ module.cliteral }}
                     </option>
-                </select>
+                </Field>
+                <ErrorMessage name="moduleCode" />
             </div>
             <div>
                 <label for="publisher">Publisher:</label>
-                <input type="text" v-model="book.publisher" id="publisher" required />
+                <Field name="publisher" type="text" v-model="book.publisher" id="publisher" required />
+                <ErrorMessage name="publisher" />
             </div>
             <div>
                 <label for="price">Price:</label>
-                <input type="number" step="0.01" min="0" v-model="book.price" id="price" required />
+                <Field name="price" type="number" step="0.01" min="0" v-model="book.price" id="price" required />
+                <ErrorMessage name="price" />
             </div>
             <div>
                 <label for="pages">Pages:</label>
-                <input type="number" step="1" v-model="book.pages" id="pages" required />
+                <Field name="pages" type="number" step="1" v-model="book.pages" id="pages" required />
+                <ErrorMessage name="pages" />
             </div>
             <div>
                 <label for="status">Status:</label>
-                <select v-model="book.status" id="status" required ref="status">
+                <Field as="select" name="status" v-model="book.status" id="status" required ref="status">
                     <option value="" disabled>Select status</option>
                     <option value="new">New</option>
                     <option value="used">Used</option>
                     <option value="bad">Bad</option>
-                </select>
+                </Field>
+                <ErrorMessage name="status" />
             </div>
             <div>
                 <label for="file">Upload Photo:</label>
@@ -111,7 +126,7 @@
             </div>
             <button type="submit">Update Book</button>
             <button type="reset" @click="fetchBook">Reset</button>
-        </form>
+        </Form>
     </div>
 </template>
 
@@ -120,11 +135,34 @@ import axios from 'axios';
 import { useMessagesStore } from '../store/messages.js';
 import { useBooksStore } from '../store/books.js';
 import { mapActions } from 'pinia';
+import { Form, Field, ErrorMessage, configure } from 'vee-validate';
+import * as yup from 'yup';
 const SERVER = 'http://localhost:3000/';
+configure({
+    generateMessage: (ctx) => {
+        const messages = {
+            price: `${ctx.field} debe ser un tipo numérico, pero el valor final fue: ${ctx.value} (convertido del valor "${ctx.originalValue}").`,
+            number: `${ctx.field} debe ser un tipo numérico, pero el valor final fue: ${ctx.value} (convertido del valor "${ctx.originalValue}").`,
+        };
+
+        const message = messages[ctx.rule.name]
+            ? messages[ctx.rule.name]
+            : `El campo ${ctx.field} no es válido`;
+
+        return message;
+    },
+});
 
 export default {
     name: 'AddBook',
     data() {
+        const mySchema = yup.object({
+            moduleCode: yup.string('Este campo debe ser una cadena de texto').required('El código del módulo es obligatorio'),
+            publisher: yup.string('Este campo debe ser una cadena de texto').required('El editor es obligatorio'),
+            price: yup.number('Este campo debe ser númerico').required('El precio es obligatorio').min(0, 'El precio debe ser mayor o igual a 0'),
+            pages: yup.number('Este campo debe ser númerico').required('Las páginas son obligatorias').integer('Las páginas deben ser un número entero').min(0, 'Las páginas deben ser mayor o igual a 0'),
+            status: yup.string('Este campo debe ser una cadena de texto').required('El estado es obligatorio')
+        });
         return {
             book: {
                 id: '',
@@ -138,16 +176,22 @@ export default {
                 soldDate: ''
             },
             imgPreview: '',
+            schema: mySchema
         };
+    },
+    components: {
+        Form,
+        Field,
+        ErrorMessage
     },
 
     computed: {
         modulesCodeCliteral() {
-             return useBooksStore().modulesCodeCliteral;
+            return useBooksStore().modulesCodeCliteral;
         },
-        id() {
-            return this.$route.params.id;
-        }
+        // id() {
+        //     return this.$route.params.id;
+        // }
     },
     async created() {
         await this.loadAllData();
@@ -351,6 +395,7 @@ export default {
 form {
     max-width: 500px;
 }
+
 input[readonly] {
     background-color: #f5f5f5;
     color: #4d4d4d;
@@ -396,5 +441,9 @@ button {
     padding: 10px;
     display: flex;
     justify-content: center;
+}
+
+span {
+    color: red;
 }
 </style>
