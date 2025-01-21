@@ -3,7 +3,7 @@
 
         <h2>Add New Book</h2>
 
-        <Form :validation-schema="schema" @submit="addBook">
+        <Form :validation-schema="schema" @submit="addBook" novalidate>
             <div>
                 <label for="moduleCode">Module (Code):</label>
                 <Field name="moduleCode" readonly type="text" v-model="book.moduleCode" id="moduleCode" required />
@@ -138,20 +138,20 @@ import { mapActions } from 'pinia';
 import { Form, Field, ErrorMessage, configure } from 'vee-validate';
 import * as yup from 'yup';
 const SERVER = 'http://localhost:3000/';
-configure({
-    generateMessage: (ctx) => {
-        const messages = {
-            price: `${ctx.field} debe ser un tipo numérico, pero el valor final fue: ${ctx.value} (convertido del valor "${ctx.originalValue}").`,
-            number: `${ctx.field} debe ser un tipo numérico, pero el valor final fue: ${ctx.value} (convertido del valor "${ctx.originalValue}").`,
-        };
+// configure({
+//     generateMessage: (ctx) => {
+//         const messages = {
+//             price: `${ctx.field} debe ser un tipo numérico, pero el valor final fue: ${ctx.value} (convertido del valor "${ctx.originalValue}").`,
+//             number: `${ctx.field} debe ser un tipo numérico, pero el valor final fue: ${ctx.value} (convertido del valor "${ctx.originalValue}").`,
+//         };
 
-        const message = messages[ctx.rule.name]
-            ? messages[ctx.rule.name]
-            : `El campo ${ctx.field} no es válido`;
+//         const message = messages[ctx.rule.name]
+//             ? messages[ctx.rule.name]
+//             : `El campo ${ctx.field} no es válido`;
 
-        return message;
-    },
-});
+//         return message;
+//     },
+// });
 
 export default {
     name: 'AddBook',
@@ -159,8 +159,8 @@ export default {
         const mySchema = yup.object({
             moduleCode: yup.string('Este campo debe ser una cadena de texto').required('El código del módulo es obligatorio'),
             publisher: yup.string('Este campo debe ser una cadena de texto').required('El editor es obligatorio'),
-            price: yup.number('Este campo debe ser númerico').required('El precio es obligatorio').min(0, 'El precio debe ser mayor o igual a 0'),
-            pages: yup.number('Este campo debe ser númerico').required('Las páginas son obligatorias').integer('Las páginas deben ser un número entero').min(0, 'Las páginas deben ser mayor o igual a 0'),
+            price: yup.number().typeError('Este campo debe ser númerico').required('El precio es obligatorio').min(0, 'El precio debe ser mayor o igual a 0'),
+            pages: yup.number().typeError('Este campo debe ser númerico').required('Las páginas son obligatorias').integer('Las páginas deben ser un número entero').min(0, 'Las páginas deben ser mayor o igual a 0'),
             status: yup.string('Este campo debe ser una cadena de texto').required('El estado es obligatorio')
         });
         return {
